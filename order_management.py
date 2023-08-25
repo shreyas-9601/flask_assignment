@@ -3,7 +3,7 @@ from flask import *
 app = Flask(__name__)
 from orders_model import OrdersModel
 from bson.objectid import ObjectId
-from Python_assignment import Order
+from order_validation import Order
 
 @app.route('/order', methods=['POST'])
 def create_order():
