@@ -82,7 +82,7 @@ def list_orders():
     sort_field = request.args.get('sort_field', 'created_time')  
     sort_order = request.args.get('sort_order', 'asc')  
 
-    query = OrdersModel.objects  
+    query = OrdersModel.objects(is_deleted = False)
 
     if email:
         query = query.filter(email=email)
