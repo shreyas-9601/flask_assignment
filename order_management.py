@@ -2,7 +2,6 @@ from datetime import datetime
 from flask import *
 app = Flask(__name__)
 from orders_model import OrdersModel
-from bson.objectid import ObjectId
 from order_validation import Order
 
 @app.route('/order', methods=['POST'])
@@ -30,7 +29,7 @@ def create_order():
 
 @app.route('/order/<order_id>', methods=['DELETE'])
 def delete_order(order_id):
-    order = OrdersModel.objects(id=ObjectId(order_id)).first()
+    order = OrdersModel.objects(id=str(order_id)).first()
     if order:
         order.is_deleted = True  
         order.deletion_time = datetime.utcnow()  
@@ -41,7 +40,7 @@ def delete_order(order_id):
 
 @app.route('/order/<order_id>', methods=['GET'])
 def get_order(order_id):
-    order = OrdersModel.objects(id=ObjectId(order_id), is_deleted = False).first()
+    order = OrdersModel.objects(id=str(order_id), is_deleted = False).first()
     if order:
         order_dict = order.to_dict()
         return jsonify(order_dict), 200
@@ -50,7 +49,7 @@ def get_order(order_id):
     
 @app.route('/order/<order_id>', methods=['PUT'])
 def mark_order_as_delivered(order_id):
-    order = OrdersModel.objects(id=ObjectId(order_id)).first()
+    order = OrdersModel.objects(id=str(order_id)).first()
     if order:
         order.is_delivered = True  
         order.updated_time = datetime.utcnow()
