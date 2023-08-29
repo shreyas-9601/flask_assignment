@@ -43,17 +43,7 @@ def delete_order(order_id):
 def get_order(order_id):
     order = OrdersModel.objects(id=ObjectId(order_id)).first()
     if order:
-        order_dict = {
-            "order_id": str(order.id),
-            "name": order.name,
-            "birthday": order.birthday,
-            "email": order.email,
-            "state": order.state,
-            "zipcode": order.zipcode,
-            "created_time": order.created_time,
-            "updated_time": order.updated_time,
-            "is_delivered": order.is_delivered
-        }
+        order_dict = order.to_dict()
         return jsonify(order_dict), 200
     else:
         return jsonify({"error": "Order not found"}), 404  
@@ -99,17 +89,7 @@ def list_orders():
         return jsonify({"error": "Invalid sort_order value"}), 400
     orders_list = []
     for order in orders:
-        order_dict = {
-            "order_id": str(order.id),
-            "name": order.name,
-            "birthday": order.birthday,
-            "email": order.email,
-            "state": order.state,
-            "zipcode": order.zipcode,
-            "created_time": order.created_time,
-            "updated_time": order.updated_time,
-            "is_delivered": order.is_delivered
-        }
+        order_dict = order.to_dict()
         orders_list.append(order_dict)
     return jsonify(orders_list), 200
 

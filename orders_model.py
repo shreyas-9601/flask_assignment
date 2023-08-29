@@ -13,3 +13,16 @@ class OrdersModel(Document):
     created_time = DateTimeField( default = datetime.utcnow)
     updated_time = DateTimeField( default = datetime.utcnow)
     is_delivered = BooleanField( default = False)
+    
+    def to_dict(self):
+        return {
+            "order_id": str(self.id),
+            "name": self.name,
+            "birthday": self.birthday,
+            "email": self.email,
+            "state": self.state,
+            "zipcode": self.zipcode,
+            "created_time": self.created_time,
+            "updated_time": self.updated_time,
+            "is_delivered": self.is_delivered
+        }
