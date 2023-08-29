@@ -41,7 +41,7 @@ def delete_order(order_id):
 
 @app.route('/order/<order_id>', methods=['GET'])
 def get_order(order_id):
-    order = OrdersModel.objects(id=ObjectId(order_id)).first()
+    order = OrdersModel.objects(id=ObjectId(order_id), is_deleted = False).first()
     if order:
         order_dict = order.to_dict()
         return jsonify(order_dict), 200
