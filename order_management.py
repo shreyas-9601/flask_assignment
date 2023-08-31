@@ -26,15 +26,15 @@ def create_order():
         return jsonify({"error": "Invalid email format"}), 400
 
     zipcode = order_data['ZipCode']
-    if len(zipcode) != 5:
+    if len(zipcode) > 10:
         return jsonify({"error": "Invalid zipcode format"}), 400
 
     name = order_data['Name']
-    if type(name) != str:
-        return jsonify({"error":"Name must be a string"}), 400
+    if type(name) != str or len(name) > 100:
+        return jsonify({"error":"Invalid name format"}), 400
     
     state = order_data['State']
-    if len(state) != 2 or not state.isalpha() or state.islower():
+    if len(state) > 50:
         return jsonify({"error": "Invalid state format"}), 400
     
     order = Order(order_id= None ,name = name, birthday = order_data['Birthday'], email = email, state = state, zipcode = zipcode)
