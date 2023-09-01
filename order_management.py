@@ -38,8 +38,7 @@ def create_order():
     if len(state) > 50:
         return jsonify({"error": "Invalid state format"}), 400
     
-    order = Order(order_id= None ,name = name, birthday = order_data['Birthday'], email = email, state = state, 
-                  zipcode = zipcode)
+    order = Order(order_id= None ,name = name, birthday = birthday, email = email, state = state, zipcode = zipcode)
     
     order_model = OrdersModel(name = order.user.name, birthday = order.user.birthday, 
                                 email = order.user.email, state = order.user.state, zipcode = order.user.zipcode)
