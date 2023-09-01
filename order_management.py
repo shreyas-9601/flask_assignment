@@ -53,37 +53,46 @@ def create_order():
 
 @app.route('/order/<order_id>', methods=['DELETE'])
 def delete_order(order_id):
-    order_model = OrdersModel.objects(id=str(order_id)).get()
-    if order_model.is_deleted == True:
-        return jsonify({"message": "Order already deleted successfully"}), 400
-    elif order_model: 
-        order_model = OrderServices.delete_orders(order_id) 
-        return jsonify({"message": "Order deleted successfully"}), 200
-    else:
-        return jsonify({"error": "Order not found"}), 404
+    try:
+        order_model = OrdersModel.objects(id=str(order_id)).get()
+        if order_model.is_deleted == True:
+            return jsonify({"message": "Order already deleted successfully"}), 400
+        elif order_model: 
+            order_model = OrderServices.delete_orders(order_id) 
+            return jsonify({"message": "Order deleted successfully"}), 200
+        else:
+            return jsonify({"error": "Order not found"}), 404
+    except Exception as e:
+        return jsonify({"error":str(e)}), 500
 
 @app.route('/order/<order_id>', methods=['GET'])
 def get_order(order_id):
-    order_model = OrdersModel.objects(id=str(order_id)).get()
-    if order_model.is_deleted == False:
-        order_dict = order_model.to_dict()
-        return jsonify(order_dict), 200
-    else:
-        return jsonify({"error": "Order not found"}), 404  
+    try:
+        order_model = OrdersModel.objects(id=str(order_id)).get()
+        if order_model.is_deleted == False:
+            order_dict = order_model.to_dict()
+            return jsonify(order_dict), 200
+        else:
+            return jsonify({"error": "Order not found"}), 404 
+    except Exception as e:
+        return jsonify({"error":str(e)}), 500 
     
 @app.route('/order/<order_id>', methods=['PUT'])
 def mark_order_as_delivered(order_id):
-    order_model = OrdersModel.objects(id=str(order_id)).get()
-    if order_model.is_deleted == False:
-        if order_model.is_delivered == True:
-            return jsonify({"message": "Order already marked as delivered"}), 400
-        elif order_model:
-            order_model = OrderServices.update_orders(order_id) 
-            return jsonify({"message": "Order marked as delivered"}), 200
+    try:
+        order_model = OrdersModel.objects(id=str(order_id)).get()
+        if order_model.is_deleted == False:
+            if order_model.is_delivered == True:
+                return jsonify({"message": "Order already marked as delivered"}), 400
+            elif order_model:
+                order_model = OrderServices.update_orders(order_id) 
+                return jsonify({"message": "Order marked as delivered"}), 200
+            else:
+                return jsonify({"error": "Order not found"}), 404
         else:
             return jsonify({"error": "Order not found"}), 404
-    else:
-        return jsonify({"error": "Order not found"}), 404
+    except Exception as e:
+        return jsonify({"error":str(e)}), 500
     
 @app.route('/orders', methods=['GET'])
 def list_orders():
