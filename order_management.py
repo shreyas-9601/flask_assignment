@@ -11,9 +11,10 @@ def create_order():
     order_data = request.json
     required_fields = ['Name', 'Birthday', 'Email', 'State', 'ZipCode']
 
-    for field in required_fields:
-        if field not in order_data:
-            return jsonify({"error": f"Missing required field: {field}"}), 400
+    missing_fields = [field for field in required_fields if field not in order_data]
+    if missing_fields:
+        error_messages = [f"Missing required field: {field}" for field in missing_fields]
+        return jsonify({"errors": error_messages}), 400
 
     birthday = None
     try:
@@ -37,26 +38,19 @@ def create_order():
     if len(state) > 50:
         return jsonify({"error": "Invalid state format"}), 400
     
-    order = Order(order_id= None ,name = name, birthday = order_data['Birthday'], email = email, state = state, zipcode = zipcode)
+    order = Order(order_id= None ,name = name, birthday = order_data['Birthday'], email = email, state = state, 
+                  zipcode = zipcode)
     
     order_model = OrdersModel(name = order.user.name, birthday = order.user.birthday, 
                                 email = order.user.email, state = order.user.state, zipcode = order.user.zipcode)
     
-    if order.validate_orders():
-        order_model = OrderServices.save_orders(order_data)
-        return jsonify({"message":"Order created successfully", "order_id": str(order_model.id)}),201
-    else:
-        if(order.user.is_valid_mail() == False):
-            return jsonify({"message":"Order creation failed due to invalid mail"}), 400
-        if(order.user.is_valid_state() == False):
-            return jsonify({"message":"Order creation failed due to invalid state"}), 400
-        if(order.user.is_valid_age() == False):
-            return jsonify({"message":"Order creation failed due to invalid age"}), 400
-        if(order.user.is_valid_zipcode() == False):
-            return jsonify({"message":"Order creation failed due to invalid zipcode"}), 400
-        if(order.user.first_monday_born() == False):
-            return jsonify({"message":"Order creation failed due to invalid day of birthday"}), 400
-    return jsonify({"message":"Order creation failed"}), 400
+    validation_error = OrderServices.validation_orders(order)
+    if validation_error:
+        return jsonify({"message": f"Order creation failed due to {validation_error['error']}"}), 400
+    
+    order_model = OrderServices.save_orders(order_data)
+
+    return jsonify({"message": "Order created successfully", "order_id": str(order_model.id)}), 201
 
 @app.route('/order/<order_id>', methods=['DELETE'])
 def delete_order(order_id):
