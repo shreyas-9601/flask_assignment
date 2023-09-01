@@ -16,9 +16,9 @@ def create_order():
         error_messages = [f"Missing required field: {field}" for field in missing_fields]
         return jsonify({"errors": error_messages}), 400
 
-    birthday = None
+    birthday = order_data['Birthday']
     try:
-        birthday = datetime.strptime(order_data['Birthday'], '%m/%d/%Y')
+        birthday = datetime.strptime(birthday, '%m/%d/%Y')
     except ValueError:
         return jsonify({"error": "Invalid date format for Birthday"}), 400
 
