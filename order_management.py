@@ -85,7 +85,7 @@ def mark_order_as_delivered(order_id):
             if order_model.is_delivered == True:
                 return jsonify({"message": "Order already marked as delivered"}), 400
             elif order_model:
-                order_model = OrderServices.update_orders(order_id) 
+                order_model = OrderServices.mark_orders_as_delivered(order_id) 
                 return jsonify({"message": "Order marked as delivered"}), 200
             else:
                 return jsonify({"error": "Order not found"}), 404
@@ -95,39 +95,27 @@ def mark_order_as_delivered(order_id):
         return jsonify({"error":str(e)}), 500
     
 @app.route('/orders', methods=['GET'])
-def list_orders():
-    page = int(request.args.get('page', 1))
-    per_page = 10
-    skip = (page - 1) * per_page
-
+def list_orders_route():
     email = request.args.get('email')
     state = request.args.get('state')
     zipcode = request.args.get('zipcode')
     
-    sort_field = request.args.get('sort_field', 'created_time')  
-    sort_order = request.args.get('sort_order', 'asc')  
-
-    query = OrdersModel.objects(is_deleted = False)
-
+    per_page = int(request.args.get('per_page', 10))
+    sort_field = request.args.get('sort_field', 'created_time')
+    sort_order = request.args.get('sort_order', 'asc')
+    page = int(request.args.get('page', 1))
+    
+    filters = {}
     if email:
-        query = query.filter(email=email)
+        filters['email'] = email
     if state:
-        query = query.filter(state=state)
+        filters['state'] = state
     if zipcode:
-        query = query.filter(zipcode=zipcode)
-    
-    if sort_order == 'asc':
-        order = query.order_by(sort_field)
-    elif sort_order == 'desc':
-        order = query.order_by('-' + sort_field)
-    else:
-        return jsonify({"error": "Invalid sort_order value"}), 400
-    
-    order = order.skip(skip).limit(per_page)
-    orders_list = []
-    for order_model in order:
-        order_dict = order_model.to_dict()
-        orders_list.append(order_dict)
+        filters['zipcode'] = zipcode
+
+    orders_list = OrderServices.list_orders(filters=filters, sort_field=sort_field,          
+                                            sort_order=sort_order, page=page, per_page=per_page)
+
     return jsonify(orders_list), 200
 
 if __name__ == '__main__':

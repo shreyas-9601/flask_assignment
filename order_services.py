@@ -13,7 +13,7 @@ class OrderServices:
         order_model = order_model.update(set__is_deleted=True, set__deletion_time=datetime.utcnow())
         return order_model
     
-    def update_orders(order_id):
+    def mark_orders_as_delivered(order_id):
         order_model = OrdersModel.objects(id=str(order_id), is_deleted = False).get()
         order_model = order_model.update(set__is_delivered= True, set__updated_time = datetime.utcnow())
         return order_model
@@ -30,3 +30,30 @@ class OrderServices:
         if not order.user.first_monday_born():
             return {"error": "Invalid day of birthday"}
         return None
+    
+    def list_orders(filters= None, sort_field='created_time', sort_order='asc', page=1, per_page=10):
+        skip = (page - 1) * per_page
+        query = OrdersModel.objects(is_deleted=False)
+
+        if filters:
+            if 'email' in filters:
+                query = query.filter(email=filters['email'])
+            if 'state' in filters:
+                query = query.filter(state=filters['state'])
+            if 'zipcode' in filters:
+                query = query.filter(zipcode=filters['zipcode'])
+
+        if sort_order == 'asc':
+            order = query.order_by(sort_field)
+        elif sort_order == 'desc':
+            order = query.order_by('-' + sort_field)
+        else:
+            return {"error":"Invalid sort_order value"}
+
+        order = order.skip(skip).limit(per_page)
+        orders_list = []
+        for order_model in order:
+            order_dict = order_model.to_dict()
+            orders_list.append(order_dict)
+
+        return orders_list
