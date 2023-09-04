@@ -8,14 +8,18 @@ class OrderServices:
         order_model= order_model.save()
         return order_model
     
-    def delete_orders(order_id):
+    def update_orders(order_id,delivered=False,deleted=False):
         order_model = OrdersModel.objects(id=str(order_id), is_deleted = False).get()
-        order_model = order_model.update(set__is_deleted=True, set__deletion_time=datetime.utcnow())
+        order_model = order_model.update(set__is_delivered=delivered,set__is_deleted=deleted,set__updated_time = datetime.utcnow())
+        return order_model
+    
+    def delete_orders(order_id):
+        order_model = OrderServices.update_orders(order_id,deleted=True)
+        order_model = order_model.update(set__deletion_time=datetime.utcnow())
         return order_model
     
     def mark_orders_as_delivered(order_id):
-        order_model = OrdersModel.objects(id=str(order_id), is_deleted = False).get()
-        order_model = order_model.update(set__is_delivered= True, set__updated_time = datetime.utcnow())
+        order_model = OrderServices.update_orders(order_id,delivered=True)
         return order_model
     
     def validation_orders(order):
